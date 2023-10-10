@@ -7,9 +7,12 @@
     <string name="user_name">Nama User</string>
     <string name="user_id">Id User</string>
     <string name="this_activity">testing</string>
-    <string name="following">"Following "</string>
-    <string name="follower">Follower</string>
+    <string name="following">"%d Following "</string>
+    <string name="follower">%d Followers</string>
     <string name="tab_text_1">Followers</string>
     <string name="tab_text_2">Following</string>
     <string name="test">test\n</string>
+    <string name="menu_1">favorite</string>
+    <string name="menu_2">setting\n</string>
+    <string name="dark_mode">Dark Mode</string>
 </resources>

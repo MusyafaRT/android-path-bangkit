@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.githubuser.data.response.UserData
+import com.example.githubuser.data.remote.response.UserData
 import com.example.githubuser.databinding.ItemUserBinding
 
 class ListUserAdapter :  ListAdapter<UserData, ListUserAdapter.ViewHolder>(DIFF_CALLBACK) {
