@@ -2,6 +2,7 @@ package com.example.storyapp.data
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.storyapp.data.api.ApiConfig
 import com.example.storyapp.data.api.ErrorResponse
@@ -23,20 +24,6 @@ class UserRepository private constructor(
     private val userPreference: UserPreference
 ) {
 
-    suspend fun saveSession(user: UserModel) {
-        userPreference.saveSession(user)
-    }
-
-    fun getSession(): Flow<UserModel> {
-        return userPreference.getSession()
-    }
-
-    suspend fun login(){
-        userPreference.login()
-    }
-    suspend fun logout() {
-        userPreference.logout()
-    }
 
     val isLogin = runBlocking { userPreference.getSession().first() }
 
@@ -52,10 +39,33 @@ class UserRepository private constructor(
     private val _uploadStory  = MutableLiveData<ErrorResponse>()
     val uploadStory: LiveData<ErrorResponse> = _uploadStory
 
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+
+
+    suspend fun saveSession(user: UserModel) {
+        userPreference.saveSession(user)
+        Log.d(TAG, "User session saved")
+    }
+
+    fun getSession(): Flow<UserModel> {
+        return userPreference.getSession()
+    }
+
+    suspend fun login(){
+        userPreference.login()
+        Log.d(TAG, "User logged in")
+    }
+    suspend fun logout() {
+        userPreference.logout()
+    }
+
     fun getListStories(token: String){
+        _isLoading.value = true
         val client = ApiConfig.getApiService(token).getStoryList()
         client.enqueue(object : Callback<StoryResponse>{
             override fun onResponse(call: Call<StoryResponse>, response: Response<StoryResponse>) {
+                _isLoading.value = false
                 if (response.isSuccessful && response.body() != null){
                     _listStories.value = response.body()!!.listStory
                 } else {
@@ -65,18 +75,21 @@ class UserRepository private constructor(
 
             override fun onFailure(call: Call<StoryResponse>, t: Throwable) {
                 Log.d("onFailure: ", t.message.toString())
+                _isLoading.value = false
             }
 
         })
     }
 
     fun registerUser(username: String, email: String, pass: String) {
+        _isLoading.value = true
         val client = ApiConfig.getApiService(isLogin.token).register(username, email, pass)
         client.enqueue(object : Callback<ErrorResponse> {
             override fun onResponse(
                 call: Call<ErrorResponse>,
                 response: Response<ErrorResponse>
             ) {
+                _isLoading.value = false
                 if (response.isSuccessful) {
                     _registerResponse.value = response.body()
                 } else {
@@ -88,6 +101,7 @@ class UserRepository private constructor(
             }
 
             override fun onFailure(call: Call<ErrorResponse>, t: Throwable) {
+                _isLoading.value = false
                 Log.d("onFailure: ", t.message.toString())
             }
 
@@ -96,9 +110,11 @@ class UserRepository private constructor(
     }
 
     fun loginUser(email: String, pass: String) {
+        _isLoading.value = true
         val client = ApiConfig.getApiService(isLogin.token).loginUser(email, pass)
         client.enqueue(object : Callback<LoginResponse> {
             override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                _isLoading.value = false
                 if (response.isSuccessful && response.body() != null) {
                     _loginResponse.value = response.body()
                     _loginResponse.postValue(response.body())
@@ -111,6 +127,7 @@ class UserRepository private constructor(
             }
 
             override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                _isLoading.value = false
                 Log.e(
                     TAG,
                     "onFailure: ${t.message.toString()}"
@@ -121,12 +138,14 @@ class UserRepository private constructor(
     }
 
     fun uploadStory(token: String, file: MultipartBody.Part, description: RequestBody) {
+        _isLoading.value = true
         val client = ApiConfig.getApiService(token).uploadImage(file, description)
         client.enqueue(object : Callback<ErrorResponse>{
             override fun onResponse(
                 call: Call<ErrorResponse>,
                 response: Response<ErrorResponse>
             ) {
+                _isLoading.value = false
                 if(response.isSuccessful){
                     _uploadStory.value = response.body()
                 } else {
@@ -138,6 +157,7 @@ class UserRepository private constructor(
             }
 
             override fun onFailure(call: Call<ErrorResponse>, t: Throwable) {
+                _isLoading.value = false
                 Log.d("onFailure: ", t.message.toString())
             }
 

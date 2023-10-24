@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
@@ -16,6 +17,7 @@ import com.example.storyapp.view.ViewModelFactory
 import com.example.storyapp.databinding.ActivityLoginBinding
 import com.example.storyapp.view.main.MainActivity
 import com.example.storyapp.view.story.StoryActivity
+import kotlin.math.log
 
 class LoginActivity : AppCompatActivity() {
     private val loginViewModel by viewModels<LoginViewModel> {
@@ -31,8 +33,6 @@ class LoginActivity : AppCompatActivity() {
         setupView()
         setupAction()
         playAnimation()
-
-
     }
 
     private fun setupView() {
@@ -50,22 +50,11 @@ class LoginActivity : AppCompatActivity() {
 
     private fun setupAction() {
         binding.loginButton.setOnClickListener {
-            loginViewModel.login()
+            showLoading()
             loginUser()
-            moveActivity()
         }
     }
 
-    private fun moveActivity() {
-        val session = loginViewModel.getSession()
-        session.observe(this) { user ->
-            if (user != null) {
-                val intent = Intent(this@LoginActivity, StoryActivity::class.java)
-                startActivity(intent)
-                finish()
-            }
-        }
-    }
 
     private fun loginUser(){
         val email = binding.emailEditText.text.toString()
@@ -81,22 +70,31 @@ class LoginActivity : AppCompatActivity() {
             }
         } else {
             loginViewModel.loginUser(email, pass)
-            loginViewModel.loginResponse.observe(this@LoginActivity){ response ->
-                loginViewModel.saveSession(
-                    UserModel(
-                        response.loginResult.name, response.loginResult.token
-                    )
-                )
-                AlertDialog.Builder(this).apply {
-                    setTitle("Yeah!")
-                    setMessage(response.message)
-                    setPositiveButton("Lanjut") { _, _ ->
-                        finish()
-                    }
-                    create()
-                    show()
+            loginViewModel.loginResponse.observe(this@LoginActivity) { response ->
+                if (response != null) {
+                    loginViewModel.login()
+                    val userModel = UserModel(response.loginResult.name, response.loginResult.token)
+                    loginViewModel.saveSession(userModel)
+                    moveToStoryActivity()
                 }
             }
+        }
+    }
+
+    private fun moveToStoryActivity() {
+        val session = loginViewModel.getSession()
+        session.observe(this) { user ->
+            if (user != null) {
+                val intent = Intent(this@LoginActivity, StoryActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+        }
+    }
+
+    private fun showLoading(){
+        loginViewModel.isLoading.observe(this){
+            binding.progressBar.visibility = if (it) View.VISIBLE else View.GONE
         }
     }
 

@@ -2,7 +2,9 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.StoryApp" parent="Theme.Material3.DayNight">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+         <item name="colorPrimary">@color/navy</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorOnBackground">@color/white</item>
         <item name="android:windowActivityTransitions">true</item>
         <item name="android:windowEnterTransition">@android:transition/explode</item>
         <item name="android:windowExitTransition">@android:transition/explode</item>

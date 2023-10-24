@@ -7,33 +7,35 @@ import androidx.lifecycle.viewModelScope
 import com.example.storyapp.data.UserRepository
 import com.example.storyapp.data.api.ListStoryItem
 import com.example.storyapp.data.pref.UserModel
-import com.example.storyapp.data.pref.UserPreference
-import com.example.storyapp.data.pref.dataStore
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class StoryViewModel(
-    private val userRepository: UserRepository
+    private val repository: UserRepository
 ): ViewModel() {
 
-    val listStories: LiveData<List<ListStoryItem>> = userRepository.listStory
+    val listStories: LiveData<List<ListStoryItem>> = repository.listStory
+    val isLoading: LiveData<Boolean> = repository.isLoading
 
     init {
-        getAllList(userRepository.isLogin.token)
+        getAllList(repository.isLogin.token)
     }
 
     fun getSession(): LiveData<UserModel> {
-        return userRepository.getSession().asLiveData()
+        return repository.getSession().asLiveData()
+    }
+
+    fun login(){
+        viewModelScope.launch {
+            repository.login()
+        }
     }
 
     fun logOut(){
         viewModelScope.launch{
-            userRepository.logout()
+            repository.logout()
         }
     }
 
-    fun getAllList(token: String) = userRepository.getListStories(token)
+    fun getAllList(token: String) = repository.getListStories(token)
 
 }

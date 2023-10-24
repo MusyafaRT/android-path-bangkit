@@ -13,7 +13,7 @@ import okhttp3.internal.userAgent
 class LoginViewModel(private val repository: UserRepository) : ViewModel() {
 
     val loginResponse: LiveData<LoginResponse> = repository.loginResponse
-
+    val isLoading: LiveData<Boolean> = repository.isLoading
     fun saveSession(user: UserModel) {
         viewModelScope.launch {
             repository.saveSession(user)

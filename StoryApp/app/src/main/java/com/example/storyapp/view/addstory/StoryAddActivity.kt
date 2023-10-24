@@ -7,6 +7,7 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -37,40 +38,41 @@ class StoryAddActivity : AppCompatActivity() {
         binding = ActivityStoryAddBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if(!allPermissionGranted()){
-            requestPermissionLauncher.launch(REQUIRED_PERMISSION)
-        }
-
-        supportActionBar?.hide()
-
-        binding.galleryButton.setOnClickListener { startGallery() }
-        binding.cameraButton.setOnClickListener { startCamera() }
-        binding.uploadButton.setOnClickListener { uploadStory() }
-
+        setupPermission()
+        setupAction()
+        setupActionBar()
+        showLoading()
     }
 
-    private fun allPermissionGranted() =
-        ContextCompat.checkSelfPermission(this, REQUIRED_PERMISSION) == PackageManager.PERMISSION_GRANTED
+    private fun allPermissionGranted() = ContextCompat.checkSelfPermission(
+        this, REQUIRED_PERMISSION
+    ) == PackageManager.PERMISSION_GRANTED
 
-    private val requestPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if (isGranted) {
-                Toast.makeText(this, "Permission request granted", Toast.LENGTH_LONG).show()
-            } else {
-                Toast.makeText(this, "Permission request denied", Toast.LENGTH_LONG).show()
-            }
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            Toast.makeText(this, "Permission request granted", Toast.LENGTH_LONG).show()
+        } else {
+            Toast.makeText(this, "Permission request denied", Toast.LENGTH_LONG).show()
         }
+    }
 
     private val launcherGallery = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
-    ){ uri: Uri? ->
-        if(uri != null) {
+    ) { uri: Uri? ->
+        if (uri != null) {
             currentImageUri = uri
             showImage()
         } else {
             Log.d("Photo Picker", "No media selected")
+        }
+    }
+    private val launcherIntentCamera = registerForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { isSuccess ->
+        if (isSuccess) {
+            showImage()
         }
     }
 
@@ -79,11 +81,25 @@ class StoryAddActivity : AppCompatActivity() {
         launcherIntentCamera.launch(currentImageUri)
     }
 
-    private val launcherIntentCamera = registerForActivityResult(
-        ActivityResultContracts.TakePicture()
-    ) { isSuccess ->
-        if(isSuccess){
-            showImage()
+    private fun setupPermission() {
+        if (!allPermissionGranted()) {
+            requestPermissionLauncher.launch(REQUIRED_PERMISSION)
+        }
+    }
+
+    private fun setupActionBar() {
+        supportActionBar?.hide()
+    }
+
+    private fun setupAction() {
+        binding.galleryButton.setOnClickListener { startGallery() }
+        binding.cameraButton.setOnClickListener { startCamera() }
+        binding.uploadButton.setOnClickListener { uploadStory() }
+    }
+
+    private fun showLoading() {
+        viewModel.isLoading.observe(this) {
+            binding.progressBar.visibility = if (it) View.VISIBLE else View.GONE
         }
     }
 
@@ -91,29 +107,29 @@ class StoryAddActivity : AppCompatActivity() {
         launcherGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
 
-    private fun uploadStory(){
-        viewModel.getSession().observe(this){user ->
-            if(user.isLogin){
-                currentImageUri?.let{ uri ->
-                    val imageFile = uriToFile(uri, this).reduceFileImage()
-                    val requestBody = binding.descEditText.text.toString().toRequestBody("text/plain".toMediaType())
-                    val requestImageFile = imageFile.asRequestBody("image/jpeg".toMediaType())
-                    val multipartBody = MultipartBody.Part.createFormData(
-                        "photo",
-                        imageFile.name,
-                        requestImageFile
-                    )
-                    viewModel.uploadStory(user.token, multipartBody, requestBody)
+    private fun uploadStory() {
+        Log.d("UploadButton", "Clicked")
+        viewModel.getSession().observe(this) { user ->
+            currentImageUri?.let { uri ->
+                val imageFile = uriToFile(uri, this).reduceFileImage()
+                val requestBody =
+                    binding.descEditText.text.toString().toRequestBody("text/plain".toMediaType())
+                val requestImageFile = imageFile.asRequestBody("image/jpeg".toMediaType())
+                val multipartBody = MultipartBody.Part.createFormData(
+                    "photo", imageFile.name, requestImageFile
+                )
+                viewModel.uploadStory(user.token, multipartBody, requestBody)
 
-                } ?: showToast(getString(R.string.empty_image_warning))
+            } ?: showToast(getString(R.string.empty_image_warning))
 
-                val intent = Intent(this, StoryActivity::class.java)
-                startActivity(intent)
-            }
+            val intent = Intent(this, StoryActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
         }
     }
+
     private fun showImage() {
-        currentImageUri?.let{
+        currentImageUri?.let {
             Log.d("Image Uri", "showImage: $it")
             binding.previewImageView.setImageURI(it)
         }
@@ -122,6 +138,7 @@ class StoryAddActivity : AppCompatActivity() {
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
+
     companion object {
         private const val REQUIRED_PERMISSION = Manifest.permission.CAMERA
     }

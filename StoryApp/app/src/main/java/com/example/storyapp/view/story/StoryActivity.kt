@@ -5,6 +5,10 @@ import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import androidx.activity.viewModels
 import androidx.core.app.ActivityOptionsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,7 +17,7 @@ import com.example.storyapp.data.api.ListStoryItem
 import com.example.storyapp.databinding.ActivityStoryBinding
 import com.example.storyapp.view.ViewModelFactory
 import com.example.storyapp.view.addstory.StoryAddActivity
-import com.example.storyapp.view.main.MainActivity
+import com.example.storyapp.view.welcome.WelcomeActivity
 
 
 class StoryActivity : AppCompatActivity() {
@@ -23,65 +27,90 @@ class StoryActivity : AppCompatActivity() {
         ViewModelFactory.getInstance(this)
     }
     private var token = ""
+    private lateinit var adapter: StoryAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         storyBinding = ActivityStoryBinding.inflate(layoutInflater)
         setContentView(storyBinding.root)
 
-        storyListViewModel.listStories.observe(this) { list ->
-            setStoryList(list)
-        }
-
-        supportActionBar?.hide()
-
-        val layoutManager = LinearLayoutManager(this)
-        storyBinding.rvStory.layoutManager = layoutManager
+        setupUser()
+        setupAdapter()
+        setupList()
+        showLoading()
 
         storyBinding.fabAdd.setOnClickListener {
             val intent = Intent(this@StoryActivity, StoryAddActivity::class.java)
             startActivity(intent)
         }
+    }
 
-        storyBinding.topAppBar.setOnMenuItemClickListener{
-                menuItem -> when(menuItem.itemId) {
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        Log.d("StoryActivity", "onCreateOptionsMenu called")
+        menuInflater.inflate(R.menu.menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        Log.d("StoryActivity", "onOptionsItemSelected called")
+        return when (item.itemId) {
             R.id.menu -> {
-                val intent = Intent(this@StoryActivity, MainActivity::class.java)
-                startActivity(intent)
+                Log.d("StoryActivity", "Logout menu item clicked")
+                logout()
                 true
             }
-            else -> false
+            else -> super.onOptionsItemSelected(item)
         }
-        }
-
-
     }
 
-    override fun onResume() {
-        super.onResume()
-        storyListViewModel.getSession().observe(this){user ->
-            if(user.isLogin){
-                token = user.token
+    private fun logout() {
+        Log.d("StoryActivity", "Logout function called")
+        storyListViewModel.logOut()
+        val intent = Intent(this, WelcomeActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+
+    private fun setupUser(){
+        storyListViewModel.login()
+        storyListViewModel.getSession().observe(this@StoryActivity) { user ->
+            token = user.token
+            setupList()
+        }
+    }
+
+    private fun showLoading() {
+        storyListViewModel.isLoading.observe(this@StoryActivity) {
+            storyBinding.progressBar.visibility = if (it) View.VISIBLE else View.GONE
+        }
+    }
+
+    private fun setupList(){
+        storyBinding.apply {
+            storyListViewModel.listStories.observe(this@StoryActivity) { list ->
+                adapter.submitList(list)
             }
         }
-        storyListViewModel.getAllList(token)
-
     }
 
 
-    private fun setStoryList(stories: List<ListStoryItem>) {
-        val adapter = StoryAdapter()
-        adapter.submitList(stories)
-        adapter.setOnItemClickCallback(object: StoryAdapter.OnItemClickCallback{
+
+    private fun setupAdapter(){
+        adapter = StoryAdapter()
+        storyBinding.rvStory.layoutManager = LinearLayoutManager(this@StoryActivity)
+        adapter.setOnItemClickCallback(object : StoryAdapter.OnItemClickCallback {
             override fun onItemClick(story: ListStoryItem) {
                 val detailIntent = Intent(this@StoryActivity, DetailStoryActivity::class.java)
                 detailIntent.putExtra(EXTRA_DATA, story)
-                startActivity(detailIntent, ActivityOptionsCompat.makeSceneTransitionAnimation(this@StoryActivity as Activity).toBundle())
+                startActivity(detailIntent,
+                    ActivityOptionsCompat.makeSceneTransitionAnimation(this@StoryActivity as Activity)
+                        .toBundle()
+                )
             }
         })
         storyBinding.rvStory.adapter = adapter
     }
 
-    companion object{
+    companion object {
         const val EXTRA_DATA = "extra_data"
     }
 }

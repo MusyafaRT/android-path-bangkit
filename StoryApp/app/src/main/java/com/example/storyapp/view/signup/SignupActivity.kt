@@ -20,7 +20,7 @@ import com.example.storyapp.customview.CustomEditText.Companion.emailRegex
 import com.example.storyapp.databinding.ActivitySignupBinding
 import com.example.storyapp.view.ViewModelFactory
 
-class SignupActivity : AppCompatActivity(){
+class SignupActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySignupBinding
     private val signupViewModel by viewModels<SignupViewModel> { ViewModelFactory.getInstance(this) }
 
@@ -32,6 +32,7 @@ class SignupActivity : AppCompatActivity(){
         setupView()
         setupAction()
         playAnimation()
+
     }
 
     private fun setupView() {
@@ -48,6 +49,7 @@ class SignupActivity : AppCompatActivity(){
         binding.signupButton.isEnabled = false
         supportActionBar?.hide()
     }
+
     private fun updateButtonState() {
         val username = binding.nameEditText.text.toString()
         val email = binding.emailEditText.text.toString()
@@ -59,13 +61,16 @@ class SignupActivity : AppCompatActivity(){
 
         binding.signupButton.isEnabled = isUsernameValid && isEmailValid && isPasswordValid
     }
+
     private fun setupAction() {
         val textWatcher = object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 updateButtonState()
             }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
+
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             }
         }
@@ -90,8 +95,9 @@ class SignupActivity : AppCompatActivity(){
                     binding.passwordEditText.error = "Password must be more than 8 characters"
                 }
             } else {
+                showLoading()
                 signupViewModel.postUser(username, email, password)
-                signupViewModel.registerResponse.observe(this){
+                signupViewModel.registerResponse.observe(this) {
                     AlertDialog.Builder(this).apply {
                         setTitle("Yeah!")
                         setMessage(it.message)
@@ -103,6 +109,12 @@ class SignupActivity : AppCompatActivity(){
                     }
                 }
             }
+        }
+    }
+
+    private fun showLoading() {
+        signupViewModel.isLoading.observe(this) {
+            binding.progressBar.visibility = if (it) View.VISIBLE else View.GONE
         }
     }
 

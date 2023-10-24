@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
@@ -27,10 +28,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         viewModel.getSession().observe(this) { user ->
+            Log.d("MainActivity", "User: ${user.isLogin}")
             if (!user.isLogin) {
                 startActivity(Intent(this, WelcomeActivity::class.java))
                 finish()
-            } else {
+            } else{
                 startActivity(Intent(this, StoryActivity::class.java))
                 finish()
             }

@@ -47,7 +47,7 @@ class CustomEditText : AppCompatEditText{
                         }
                     }
                     PASSWORD_EDIT_TEXT -> {
-                        if(input.length < 8) {
+                        if(input.length <= 8) {
                             setError("Password tidak boleh kurang dari 8 karakter", null)
                         } else {
                             error = null
@@ -67,7 +67,7 @@ class CustomEditText : AppCompatEditText{
                         }
                     }
                     PASSWORD_EDIT_TEXT -> {
-                        if(input.length < 8) {
+                        if(input.length <= 8) {
                             setError("Password tidak boleh kurang dari 8 karakter", null)
                         } else {
                             error = null
@@ -82,7 +82,7 @@ class CustomEditText : AppCompatEditText{
 
 
     companion object{
-        const val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
+        const val emailRegex = "[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}\\@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+"
         const val EMAIL_EDIT_TEXT = 0x00000021
         const val PASSWORD_EDIT_TEXT = 0x00000081
     }
