@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 class SignupViewModel(private val repository: UserRepository) : ViewModel() {
     val isLoading: LiveData<Boolean> = repository.isLoading
     val registerResponse: LiveData<ErrorResponse> = repository.registerResponse
-    fun postUser(username: String, email: String, pass: String){
+    fun postUser(username: String, email: String, pass: String) {
         viewModelScope.launch {
             repository.registerUser(username, email, pass)
         }

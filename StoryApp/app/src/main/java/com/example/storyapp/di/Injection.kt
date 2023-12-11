@@ -3,6 +3,7 @@ package com.example.storyapp.di
 import android.content.Context
 import com.example.storyapp.data.UserRepository
 import com.example.storyapp.data.api.ApiConfig
+import com.example.storyapp.data.database.StoryDatabase
 import com.example.storyapp.data.pref.UserPreference
 import com.example.storyapp.data.pref.dataStore
 import kotlinx.coroutines.flow.first
@@ -12,7 +13,8 @@ object Injection {
     fun provideRepository(context: Context): UserRepository {
         val pref = UserPreference.getInstance(context.dataStore)
         val user = runBlocking { pref.getSession().first() }
+        val storyDatabase = StoryDatabase.getDatabase(context)
         val apiService = ApiConfig.getApiService(user.token)
-        return UserRepository.getInstance(pref)
+        return UserRepository.getInstance(pref, storyDatabase, apiService)
     }
 }

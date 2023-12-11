@@ -5,19 +5,15 @@ import android.animation.ObjectAnimator
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.storyapp.data.pref.UserModel
-import com.example.storyapp.view.ViewModelFactory
 import com.example.storyapp.databinding.ActivityLoginBinding
-import com.example.storyapp.view.main.MainActivity
+import com.example.storyapp.view.ViewModelFactory
 import com.example.storyapp.view.story.StoryActivity
-import kotlin.math.log
 
 class LoginActivity : AppCompatActivity() {
     private val loginViewModel by viewModels<LoginViewModel> {
@@ -56,7 +52,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
 
-    private fun loginUser(){
+    private fun loginUser() {
         val email = binding.emailEditText.text.toString()
         val pass = binding.passwordEditText.text.toString()
 
@@ -92,8 +88,8 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun showLoading(){
-        loginViewModel.isLoading.observe(this){
+    private fun showLoading() {
+        loginViewModel.isLoading.observe(this) {
             binding.progressBar.visibility = if (it) View.VISIBLE else View.GONE
         }
     }

@@ -6,16 +6,12 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.widget.addTextChangedListener
-import com.example.storyapp.R
-import com.example.storyapp.customview.CustomEditText
 import com.example.storyapp.customview.CustomEditText.Companion.emailRegex
 import com.example.storyapp.databinding.ActivitySignupBinding
 import com.example.storyapp.view.ViewModelFactory
@@ -57,7 +53,7 @@ class SignupActivity : AppCompatActivity() {
 
         val isUsernameValid = username.isNotEmpty()
         val isEmailValid = email.matches(emailRegex.toRegex())
-        val isPasswordValid = password.length > 8
+        val isPasswordValid = password.length >= 8
 
         binding.signupButton.isEnabled = isUsernameValid && isEmailValid && isPasswordValid
     }

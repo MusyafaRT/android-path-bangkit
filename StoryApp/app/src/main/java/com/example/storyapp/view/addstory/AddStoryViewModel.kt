@@ -11,12 +11,12 @@ import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 
-class AddStoryViewModel(private val repository: UserRepository): ViewModel() {
+class AddStoryViewModel(private val repository: UserRepository) : ViewModel() {
     val uploadResponse: LiveData<ErrorResponse> = repository.uploadStory
     val isLoading: LiveData<Boolean> = repository.isLoading
-    fun uploadStory(token: String, file: MultipartBody.Part, desc: RequestBody){
+    fun uploadStory(token: String, file: MultipartBody.Part, desc: RequestBody, lat: RequestBody?, lon: RequestBody?) {
         viewModelScope.launch {
-            repository.uploadStory(token, file, desc)
+            repository.uploadStory(token, file, desc, lat, lon)
         }
     }
     fun getSession(): LiveData<UserModel> {

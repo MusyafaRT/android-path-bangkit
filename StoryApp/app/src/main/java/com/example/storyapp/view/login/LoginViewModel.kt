@@ -8,7 +8,6 @@ import com.example.storyapp.data.UserRepository
 import com.example.storyapp.data.api.LoginResponse
 import com.example.storyapp.data.pref.UserModel
 import kotlinx.coroutines.launch
-import okhttp3.internal.userAgent
 
 class LoginViewModel(private val repository: UserRepository) : ViewModel() {
 
@@ -20,13 +19,13 @@ class LoginViewModel(private val repository: UserRepository) : ViewModel() {
         }
     }
 
-    fun loginUser(email: String, pass: String){
+    fun loginUser(email: String, pass: String) {
         viewModelScope.launch {
             repository.loginUser(email, pass)
         }
     }
 
-    fun login(){
+    fun login() {
         viewModelScope.launch {
             repository.login()
         }

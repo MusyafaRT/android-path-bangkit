@@ -21,6 +21,7 @@ class WelcomeActivity : AppCompatActivity() {
     private val viewModel by viewModels<MainViewModel> {
         ViewModelFactory.getInstance(this)
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityWelcomeBinding.inflate(layoutInflater)
@@ -31,7 +32,6 @@ class WelcomeActivity : AppCompatActivity() {
         setupAction()
         playAnimation()
     }
-
 
 
     private fun setupView() {

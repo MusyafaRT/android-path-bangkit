@@ -6,15 +6,22 @@ import android.text.TextWatcher
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatEditText
 
-class CustomEditText : AppCompatEditText{
+class CustomEditText : AppCompatEditText {
     private var inputListener: InputListener? = null
+
     constructor(context: Context) : super(context) {
         init()
     }
+
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
         init()
     }
-    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+
+    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    ) {
         init()
     }
 
@@ -27,7 +34,7 @@ class CustomEditText : AppCompatEditText{
     }
 
     private fun init() {
-        addTextChangedListener(object: TextWatcher {
+        addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
 
@@ -38,16 +45,17 @@ class CustomEditText : AppCompatEditText{
                 lengthAfter: Int
             ) {
                 val input = text.toString()
-                when(inputType){
+                when (inputType) {
                     EMAIL_EDIT_TEXT -> {
-                        if(!input.matches(emailRegex.toRegex())){
+                        if (!input.matches(emailRegex.toRegex())) {
                             setError("Format email yang digunakan salah", null)
                         } else {
                             error = null
                         }
                     }
+
                     PASSWORD_EDIT_TEXT -> {
-                        if(input.length <= 8) {
+                        if (input.length <= 8) {
                             setError("Password tidak boleh kurang dari 8 karakter", null)
                         } else {
                             error = null
@@ -58,16 +66,17 @@ class CustomEditText : AppCompatEditText{
 
             override fun afterTextChanged(s: Editable?) {
                 val input = text.toString()
-                when(inputType){
+                when (inputType) {
                     EMAIL_EDIT_TEXT -> {
-                        if(!input.matches(emailRegex.toRegex())){
+                        if (!input.matches(emailRegex.toRegex())) {
                             setError("Format email yang digunakan salah", null)
                         } else {
                             error = null
                         }
                     }
+
                     PASSWORD_EDIT_TEXT -> {
-                        if(input.length <= 8) {
+                        if (input.length < 8) {
                             setError("Password tidak boleh kurang dari 8 karakter", null)
                         } else {
                             error = null
@@ -80,9 +89,9 @@ class CustomEditText : AppCompatEditText{
     }
 
 
-
-    companion object{
-        const val emailRegex = "[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}\\@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+"
+    companion object {
+        const val emailRegex =
+            "[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}\\@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+"
         const val EMAIL_EDIT_TEXT = 0x00000021
         const val PASSWORD_EDIT_TEXT = 0x00000081
     }

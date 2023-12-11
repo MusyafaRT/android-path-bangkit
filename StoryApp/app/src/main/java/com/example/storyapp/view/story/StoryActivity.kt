@@ -15,8 +15,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.storyapp.R
 import com.example.storyapp.data.api.ListStoryItem
 import com.example.storyapp.databinding.ActivityStoryBinding
+import com.example.storyapp.view.LoadingStateAdapter
 import com.example.storyapp.view.ViewModelFactory
 import com.example.storyapp.view.addstory.StoryAddActivity
+import com.example.storyapp.view.maps.MapsActivity
 import com.example.storyapp.view.welcome.WelcomeActivity
 
 
@@ -44,6 +46,11 @@ class StoryActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        setupList()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         Log.d("StoryActivity", "onCreateOptionsMenu called")
         menuInflater.inflate(R.menu.menu, menu)
@@ -58,8 +65,19 @@ class StoryActivity : AppCompatActivity() {
                 logout()
                 true
             }
+
+            R.id.maps -> {
+                Log.d("StoryActivity", "Maps menu item clicked")
+                moveActivity()
+                true
+            }
+
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun moveActivity() {
+        startActivity(Intent(this, MapsActivity::class.java))
     }
 
     private fun logout() {
@@ -70,7 +88,7 @@ class StoryActivity : AppCompatActivity() {
         finish()
     }
 
-    private fun setupUser(){
+    private fun setupUser() {
         storyListViewModel.login()
         storyListViewModel.getSession().observe(this@StoryActivity) { user ->
             token = user.token
@@ -84,30 +102,34 @@ class StoryActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupList(){
+    private fun setupList() {
         storyBinding.apply {
-            storyListViewModel.listStories.observe(this@StoryActivity) { list ->
-                adapter.submitList(list)
+            storyListViewModel.story.observe(this@StoryActivity) { stories ->
+                adapter.submitData(lifecycle, stories)
             }
         }
     }
 
 
-
-    private fun setupAdapter(){
+    private fun setupAdapter() {
         adapter = StoryAdapter()
         storyBinding.rvStory.layoutManager = LinearLayoutManager(this@StoryActivity)
         adapter.setOnItemClickCallback(object : StoryAdapter.OnItemClickCallback {
             override fun onItemClick(story: ListStoryItem) {
                 val detailIntent = Intent(this@StoryActivity, DetailStoryActivity::class.java)
                 detailIntent.putExtra(EXTRA_DATA, story)
-                startActivity(detailIntent,
+                startActivity(
+                    detailIntent,
                     ActivityOptionsCompat.makeSceneTransitionAnimation(this@StoryActivity as Activity)
                         .toBundle()
                 )
             }
         })
-        storyBinding.rvStory.adapter = adapter
+        storyBinding.rvStory.adapter = adapter.withLoadStateFooter(
+            footer = LoadingStateAdapter {
+                adapter.retry()
+            }
+        )
     }
 
     companion object {

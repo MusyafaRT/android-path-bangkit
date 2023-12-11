@@ -1,8 +1,7 @@
 package com.example.storyapp.view.story
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.storyapp.data.api.ListStoryItem
 import com.example.storyapp.databinding.ActivityDetailStoryBinding
@@ -19,12 +18,12 @@ class DetailStoryActivity : AppCompatActivity() {
 
     }
 
-    private fun setupView(){
+    private fun setupView() {
         binding = ActivityDetailStoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
     }
 
-    private fun setupData(){
+    private fun setupData() {
         val data = intent.getParcelableExtra<ListStoryItem>(EXTRA_DATA) as ListStoryItem
         binding.apply {
             tvItemTitle.text = data.name

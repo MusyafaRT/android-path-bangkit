@@ -69,6 +69,7 @@ object Utils {
         inputStream.close()
         return myFile
     }
+
     private const val MAXIMAL_SIZE = 1000000
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -95,7 +96,7 @@ object Utils {
         val orientation = ExifInterface(file).getAttributeInt(
             ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED
         )
-        return when (orientation){
+        return when (orientation) {
             ExifInterface.ORIENTATION_ROTATE_90 -> rotateImage(this, 90F)
             ExifInterface.ORIENTATION_ROTATE_180 -> rotateImage(this, 180F)
             ExifInterface.ORIENTATION_ROTATE_270 -> rotateImage(this, 270F)

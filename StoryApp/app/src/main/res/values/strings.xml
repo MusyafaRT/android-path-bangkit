@@ -21,4 +21,11 @@
     <string name="upload">Upload story</string>
     <string name="empty_image_warning">Ini tidak boleh kosong</string>
     <string name="see_story">See Story</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="retry">Coba lagi</string>
+    <string name="normal_type">Normal</string>
+    <string name="satellite_type">Satellite</string>
+    <string name="terrain_type">Terrain</string>
+    <string name="hybrid_type">Hybrid</string>
+    <string name="location">Share location</string>
 </resources>
